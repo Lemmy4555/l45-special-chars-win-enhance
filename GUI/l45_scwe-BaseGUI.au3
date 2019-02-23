@@ -22,6 +22,9 @@ Global $g_iGUIOuterHeight = 300
 Global $g_iGUIWidth = 500
 
 Global $g_hGUI
+Global $g_bIsGUIShowed = False
+Global $g_sShowGUICb = Null
+Global $g_sHideGUICb = Null
 
 Func InitL45GUI ($bShowClose = False)
   ;Set Theme
@@ -73,11 +76,34 @@ EndFunc
 Func BaseGUI_HideGUI ()
   NavigationEvents_Unbind()
 	GUISetState(@SW_HIDE, $g_hGUI)
+  HotKeySet("{ESC}")
+  $g_bIsGUIShowed = False
+  
+  If $g_sHideGUICb <> Null Then
+    Call($g_sHideGUICb)
+  EndIf
 EndFunc
 
 Func BaseGUI_ShowGUI ()
 	GUISetState(@SW_SHOW, $g_hGUI)
   NavigationEvents_Bind()
+  WinActivate($g_hGUI)
+  HotKeySet("{ESC}", "BaseGUI_HideGUI")
+  $g_bIsGUIShowed = True
+
+  If $g_sShowGUICb <> Null Then
+    Call($g_sShowGUICb)
+  EndIf
+
+  While 1
+    If BaseGUI_IsActiveWindowNotMySelf() Then
+      If $g_bIsGUIShowed Then
+        BaseGUI_HideGUI()
+      EndIf
+      ExitLoop
+    EndIF
+    Sleep(200)
+  WEnd
 EndFunc
 
 Func _BaseGUI_ShowGUIOnWindow ($aPos)
@@ -88,4 +114,24 @@ Func _BaseGUI_ShowGUIOnWindow ($aPos)
   WinMove($g_hGUI, $__g_sGUIName, $iX, $iY, $g_iGUIWidth, $g_iGUIOuterHeight)
 
   BaseGUI_ShowGUI()
+EndFunc
+
+Func BaseGUI_IsActiveWindowNotMySelf()
+	; Retrieve the position as well as height and width of the active window.
+	Local $sTitle = WinGetTitle("[ACTIVE]")
+	return $sTitle <> $__g_sGUIName
+EndFunc
+
+Func BaseGUI_ShowGUIEvent($sCallback)
+  $g_sShowGUICb = $sCallback
+EndFunc
+
+Func BaseGUI_HideGUIEvent($sCallback)
+  $g_sHideGUICb = $sCallback
+EndFunc
+
+Func BaseGUI_ShowGUIOnActiveWindow()
+	; Retrieve the position as well as height and width of the active window.
+	Local $aPos = WinGetPos("[ACTIVE]")
+	_BaseGUI_ShowGUIOnWindow($aPos)
 EndFunc

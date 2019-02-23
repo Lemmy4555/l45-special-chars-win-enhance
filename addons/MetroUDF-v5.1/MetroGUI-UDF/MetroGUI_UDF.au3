@@ -3239,6 +3239,7 @@ EndFunc   ;==>_GDIPlus_GraphicsGetDPIRatio
 
 ;========================================================================NEW=================================================================================
 Func _iHoverOn($idCtrl, $vData)
+  ConsoleWrite("_iHoverOn " & $idCtrl & " " & $vData & @CRLF)  
 	Switch $iHoverReg[$vData][3]
 		Case 5, 7
 			If $iHoverReg[$vData][2] Then ;checkboxes and radios
@@ -3264,6 +3265,7 @@ EndFunc   ;==>_iHoverOn
 
 
 Func _iHoverOff($idCtrl, $vData)
+  ConsoleWrite("_iHoverOff " & $idCtrl & " " & $vData & @CRLF)
 	Switch $iHoverReg[$vData][3]
 		Case 0, 3, 4, 8, 9, 10 ;buttons
 			If WinActive($iHoverReg[$vData][15]) Then

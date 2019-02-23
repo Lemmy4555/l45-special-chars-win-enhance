@@ -21,22 +21,18 @@ Func KeyHoldHandler_KeyHoldEvent ($sCallback)
     Return
   EndIf
 
-  _KeyHoldHandler_Init ()
+  _KeyHoldHandler_Mapping_Init ()
 
   $bInitialized = True
 EndFunc
 
-Func _KeyHoldHandler_Init ()
-  HotKeySet($g_KeyHoldHandler_CapitalEKey_Code, "_KeyHoldHandler_CapitalEKey")
-EndFunc
-
 Func KeyHoldHandler_Unbind ()
   $g_bKeyHoldHandler_Paused = True
-  HotKeySet($g_KeyHoldHandler_CapitalEKey_Code)
+  _KeyHoldHandler_Mapping_Reset()
 EndFunc
 
 Func KeyHoldHandler_Rebind ()
-  _KeyHoldHandler_Init()
+  _KeyHoldHandler_Mapping_Init()
   $g_bKeyHoldHandler_Paused = False
 EndFunc
 
@@ -48,11 +44,7 @@ Func KeyHoldHandler_Resume ()
   $g_bKeyHoldHandler_Paused = False
 EndFunc
 
-Func _KeyHoldHandler_CapitalEKey ()
-  _KeyHoldHandler_HoldingKey($g_KeyHoldHandler_CapitalEKey_Code, $g_KeyHoldHandler_CapitalEKey_IntCode, $g_KeyHoldHandler_asCapitalEKey_Values)
-EndFunc
-
-Func _KeyHoldHandler_HoldingKey ($sKeyCode, $sKeyIntCode, $aiValues)
+Func KeyHoldHandler_HoldingKey ($sKeyCode, $sKeyIntCode, $aiValues)
   If $iKeyHoldCounter > 0 OR $g_bKeyHoldHandler_Paused Then
     Return
   EndIf

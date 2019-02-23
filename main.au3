@@ -18,29 +18,38 @@
 #include <AutoItConstants.au3>
 #include <WindowsConstants.au3>
 
-#include <GUI/l45_scwe_BaseGUI.au3>
-#include <GUI/l45_scwe_CharOptions.au3>
+#include <GUI/l45_scwe-BaseGUI.au3>
+#include <GUI/CharOptions/l45_scwe-CharOptions.au3>
 #include <Key-Handler/l45_scwe-KeyHoldHandler.au3>
-#include <l45_scwe-Utils.au3>
 
-InitL45GUI(True)
-
-Local $asCharOptions[5] = ["A", "B", "C", "D", "E"]
-
+InitL45GUI(False)
 KeyHoldHandler_KeyHoldEvent("_Main_OnKeyHold")
-NavigationEvents_Register(Default, Default, "CharOptions_SelectRightOption", "CharOptions_SelectLeftOption")
+BaseGUI_HideGUIEvent("KeyHoldHandler_Resume")
+BaseGUI_ShowGUIEvent("KeyHoldHandler_Pause")
+NavigationEvents_Register(Default, Default, "CharOptionsNavigation_SelectRightOption", "CharOptionsNavigation_SelectLeftOption", "CharOptionsInteraction_BtnOnEnter")
+CharOptionsInteraction_OptionSelectEvent("_Main_OnOptionClicked")
 
 Func _Main_OnKeyHold ($sKeyCode, $sKeyIntCode, $aiValues)
-	Local $bIsNotMySelfActiveWindow = Utils_IsActiveWindowNotMySelf() 
+	Local $bIsNotMySelfActiveWindow = BaseGUI_IsActiveWindowNotMySelf() 
 
 	if $bIsNotMySelfActiveWindow Then
     CharOptions_CreateCharOptions($aiValues)
-		KeyHoldHandler_Pause()
-		Utils_ShowGUIOnActiveWindow()
-		CharOptions_SelectOption(0)
-
-		HotKeySet("{ESC}", "BaseGUI_HideGUI")
+		CharOptionsNavigation_SelectOption(0)
+		BaseGUI_ShowGUIOnActiveWindow()
 	EndIf
+EndFunc
+
+Func _Main_OnOptionClicked($iChar)
+  KeyHoldHandler_Pause()
+
+  BaseGUI_HideGUI()
+
+	ConsoleWrite("Write " & $iChar & @CRLF)
+
+	Local $sChar = ChrW($iChar)
+	Send($sChar)
+
+  KeyHoldHandler_Resume()
 EndFunc
 
 ;Endless While loop to keep the GUI Open
