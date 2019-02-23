@@ -44,7 +44,7 @@ Func _Main_OnOptionClicked($iChar)
 
   BaseGUI_HideGUI()
 
-	ConsoleWrite("Write " & $iChar & @CRLF)
+	;ConsoleWrite("Write " & $iChar & @CRLF)
 
 	Local $sChar = ChrW($iChar)
 	Send($sChar)
@@ -54,5 +54,5 @@ EndFunc
 
 ;Endless While loop to keep the GUI Open
 While 1
-	Sleep(2000)
+	Sleep(200)
 WEnd

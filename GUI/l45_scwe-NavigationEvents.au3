@@ -50,6 +50,4 @@ Func NavigationEvents_Register($sOnUpCb = "", $sOnDownCb = "", $sOnRightCb = "",
   $sOnRight = $sOnRightCb
   $sOnLeft = $sOnLeftCb
   $sOnEnter = $sOnEnterCb
-
-  NavigationEvents_Bind()
 EndFunc

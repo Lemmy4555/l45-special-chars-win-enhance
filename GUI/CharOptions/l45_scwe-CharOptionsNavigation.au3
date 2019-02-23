@@ -31,7 +31,7 @@ Func CharOptionsNavigation_UnselectAllOptions ()
 EndFunc
 
 Func CharOptionsNavigation_SelectOption ($iBtnIndex)
-  ConsoleWrite("CharOptionsNavigation_SelectOption " & $g_iCurrentlySelected & " " & $iBtnIndex & " " & UBound($g_ahCharOptionBtns) & @CRLF)
+  ;ConsoleWrite("CharOptionsNavigation_SelectOption " & $g_iCurrentlySelected & " " & $iBtnIndex & " " & UBound($g_ahCharOptionBtns) & @CRLF)
   If $g_iCurrentlySelected <> Null Then
     _iHoverOff($g_ahCharOptionBtns[$g_iCurrentlySelected], $g_ahCharOptionBtns[$g_iCurrentlySelected] - 7)
   EndIf

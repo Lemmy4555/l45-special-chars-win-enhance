@@ -23,6 +23,10 @@ Func CharOptionsInteraction_BtnClick ()
 EndFunc
 
 Func CharOptionsInteraction_BtnOnEnter ()
+  If $g_iCurrentlySelected = Null Then
+    Return
+  EndIf
+  
   ControlClick($g_hGUI, $__g_sGUIName, $g_ahCharOptionBtns[$g_iCurrentlySelected])
 EndFunc
 
