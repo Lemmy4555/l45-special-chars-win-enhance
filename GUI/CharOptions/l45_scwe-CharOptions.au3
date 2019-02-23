@@ -22,6 +22,8 @@ $g_MetroGUI_UDF_Custom_HoverOffCb = "_CharOptionsNavigation_OnHoverOff"
 Func CharOptions_CreateCharOptions ($aiChars)
   Local $iCharsArrayLength = UBound($aiChars)
 
+  $g_iCurrentlySelected = Null
+
   For $hCharOptionBtn In $g_ahCharOptionBtns
     GUICtrlDelete($hCharOptionBtn)
   Next
