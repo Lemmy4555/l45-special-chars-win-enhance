@@ -14,6 +14,9 @@
 #include <Array.au3>
 #include "MetroUDF-Required\SSCtrlHover.au3"
 
+Global $g_MetroGUI_UDF_Custom_HoverOnCb = Null
+Global $g_MetroGUI_UDF_Custom_HoverOffCb = Null
+
 _GDIPlus_Startup()
 Opt("WinWaitDelay", 0) ;Required for faster WinActivate when using the fullscreen mode
 
@@ -113,7 +116,7 @@ EndIf
 ; Return values .: Handle to the created gui
 ; Example .......: _Metro_CreateGUI("Example", 500, 300, -1, -1, True)
 ; ===============================================================================================================================
-Func _Metro_CreateGUI($Title, $Width, $Height, $Left = -1, $Top = -1, $AllowResize = False, $ParentGUI = "")
+Func _Metro_CreateGUI($Title, $Width, $Height, $Left = -1, $Top = -1, $AllowResize = False, $ParentGUI = "", $ExStyle = -1)
 	Local $GUI_Return
 
 	;HighDPI Support
@@ -124,12 +127,12 @@ Func _Metro_CreateGUI($Title, $Width, $Height, $Left = -1, $Top = -1, $AllowResi
 	Local $gID
 	If $AllowResize Then
 		DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", 0) ;Adds compatibility for Windows 7 Basic theme
-		$GUI_Return = GUICreate($Title, $Width, $Height, $Left, $Top, BitOR($WS_SIZEBOX, $WS_MINIMIZEBOX, $WS_MAXIMIZEBOX), -1, $ParentGUI)
+		$GUI_Return = GUICreate($Title, $Width, $Height, $Left, $Top, BitOR($WS_SIZEBOX, $WS_MINIMIZEBOX, $WS_MAXIMIZEBOX), $ExStyle, $ParentGUI)
 		$gID = _Metro_SetGUIOption($GUI_Return, True, True, $Width, $Height)
 		DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", BitOR(1, 2, 4))
 	Else
 		DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", 0) ;Adds compatibility for Windows 7 Basic theme
-		$GUI_Return = GUICreate($Title, $Width, $Height, $Left, $Top, -1, -1, $ParentGUI)
+		$GUI_Return = GUICreate($Title, $Width, $Height, $Left, $Top, -1, $ExStyle, $ParentGUI)
 		$gID = _Metro_SetGUIOption($GUI_Return, False, False, $Width, $Height)
 		DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", BitOR(1, 2, 4))
 	EndIf
@@ -3252,6 +3255,10 @@ Func _iHoverOn($idCtrl, $vData)
 		Case Else
 			_WinAPI_DeleteObject(GUICtrlSendMsg($idCtrl, 0x0172, 0, $iHoverReg[$vData][6])) ;Button hover image
 	EndSwitch
+
+	If $g_MetroGUI_UDF_Custom_HoverOnCb <> Null Then
+	  Call($g_MetroGUI_UDF_Custom_HoverOnCb, $idCtrl)
+	EndIf
 EndFunc   ;==>_iHoverOn
 
 
@@ -3279,6 +3286,10 @@ Func _iHoverOff($idCtrl, $vData)
 		Case Else
 			_WinAPI_DeleteObject(GUICtrlSendMsg($idCtrl, 0x0172, 0, $iHoverReg[$vData][5])) ;Button default image
 	EndSwitch
+
+	If $g_MetroGUI_UDF_Custom_HoverOffCb <> Null Then
+	  Call($g_MetroGUI_UDF_Custom_HoverOffCb, $idCtrl)
+	EndIf
 EndFunc   ;==>_iHoverOff
 
 
