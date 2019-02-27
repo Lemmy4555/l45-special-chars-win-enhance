@@ -34,14 +34,26 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
+    </Reference>
     <Reference Include="Gma.System.MouseKeyHook, Version=5.6.130.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MouseKeyHook.5.6.0\lib\net40\Gma.System.MouseKeyHook.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MahApps.Metro.1.6.5\lib\net46\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -68,15 +80,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="L45CaretPosition\GlobalCaretPosition.cs" />
-    <Compile Include="L45KeyBind\KeyBindConfig.cs" />
-    <Compile Include="L45KeyBind\KeyBindEventArgs.cs" />
-    <Compile Include="L45KeyBind\KeysBindHandler.cs" />
-    <Compile Include="L45KeyHoldHook\KeyboardInputUtils.cs" />
-    <Compile Include="L45KeyHoldHook\KeyInfo.cs" />
-    <Compile Include="L45KeyHoldHook\KeyHoldEventArgs.cs" />
-    <Compile Include="L45KeyHoldHook\KeyHoldHook.cs" />
-    <Compile Include="L45KeyHoldHook\KeyHoldHook.KeyHoldHandler.cs" />
+    <Compile Include="CustomButton.cs" />
+    <Compile Include="Implementation\BindedKeyHoldManager.cs" />
+    <Compile Include="L45\CaretPosition\GlobalCaretPosition.cs" />
+    <Compile Include="KeyBind\KeyBindConfig.cs" />
+    <Compile Include="KeyBind\KeyBindEventArgs.cs" />
+    <Compile Include="KeyBind\KeysBindHandler.cs" />
+    <Compile Include="L45\KeyHoldHook\KeyboardInputUtils.cs" />
+    <Compile Include="L45\KeyHoldHook\KeyInfo.cs" />
+    <Compile Include="L45\KeyHoldHook\KeyHoldEventArgs.cs" />
+    <Compile Include="L45\KeyHoldHook\KeyHoldHook.cs" />
+    <Compile Include="L45\KeyHoldHook\KeyHoldHook.KeyHoldHandler.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -100,6 +114,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

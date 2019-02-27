@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace L45SpecialCharWinEnhance.L45KeyBind
+namespace L45.SpecialCharWinEnhance.KeyBind
 {
     class KeyBindConfig
     {

@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace L45SpecialCharWinEnhance
+namespace L45.KeyHoldHook
 {
     class KeyboardInputUtils
     {

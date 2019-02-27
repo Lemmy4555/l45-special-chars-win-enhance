@@ -8,12 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace L45SpecialCharWinEnhance.L45KeyHoldHook
+namespace L45.KeyHoldHook
 {
-    public partial class KeyHoldHook
+    public partial class L45KeyHoldHook
     {
-        private static KeyHoldHook instance;
-
         private IKeyboardMouseEvents eventsHook;
         private Dictionary<string, KeyHoldHandler> activeHandlers;
         private bool paused = false;
@@ -25,25 +23,10 @@ namespace L45SpecialCharWinEnhance.L45KeyHoldHook
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
         public static extern short GetKeyState(int keyCode);
 
-        private KeyHoldHook()
+        public L45KeyHoldHook()
         {
-            this.eventsHook = Hook.GlobalEvents();
             this.activeHandlers = new Dictionary<string, KeyHoldHandler>();
             this.SubscribeEvents();
-        }
-
-        public static KeyHoldHook Instance
-        {
-            get
-            {
-                if (instance != null)
-                {
-                    return instance;
-                }
-
-                instance = new KeyHoldHook();
-                return instance;
-            }
         }
 
         public bool Paused
@@ -65,12 +48,25 @@ namespace L45SpecialCharWinEnhance.L45KeyHoldHook
 
         private void SubscribeEvents()
         {
+            if (this.eventsHook != null)
+            {
+                return;
+            }
+
+            this.eventsHook = Hook.GlobalEvents();
             eventsHook.KeyDown += OnKeyDown;
         }
 
         private void UnsubscribeEvents()
         {
-            eventsHook.KeyDown -= OnKeyDown;
+            if (this.eventsHook == null)
+            {
+                return;
+            }
+
+            this.eventsHook.KeyDown -= OnKeyDown;
+            this.eventsHook.Dispose();
+            this.eventsHook = null;
 
             foreach (KeyValuePair<string, KeyHoldHandler> entry in this.activeHandlers)
             {
@@ -88,6 +84,8 @@ namespace L45SpecialCharWinEnhance.L45KeyHoldHook
             }
 
             string key = e.KeyCode.ToString();
+
+            Debug.WriteLine(key);
 
             if (!this.activeHandlers.ContainsKey(key))
             {
@@ -156,12 +154,9 @@ namespace L45SpecialCharWinEnhance.L45KeyHoldHook
         public void Dispose()
         {
             this.UnsubscribeEvents();
-            this.eventsHook.Dispose();
-            this.eventsHook = null;
             this.KeyHoldEvent = null;
             this.KeyUpEvent = null;
             this.KeyDownEvent = null;
-            instance = null;
         }
 
         internal void Pause()

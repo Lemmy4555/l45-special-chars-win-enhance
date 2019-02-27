@@ -8,10 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace L45SpecialCharWinEnhance.L45KeyHoldHook
+namespace L45.KeyHoldHook
 {
 
-    public partial class KeyHoldHook
+    public partial class L45KeyHoldHook
     {
         private class KeyHoldHandler
         {

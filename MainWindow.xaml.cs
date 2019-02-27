@@ -1,105 +1,169 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+﻿using L45.CaretPosition;
+using L45.SpecialCharWinEnhance.Implementation;
+using L45.SpecialCharWinEnhance.KeyBind;
+using System;
 using System.ComponentModel;
-using System.Threading;
-using L45SpecialCharWinEnhance.L45KeyHoldHook;
-using System.Text.RegularExpressions;
-using L45SpecialCharWinEnhance.L45KeyBind;
-using L45SpecialCharWinEnhance.L45CaretPosition;
-using System.Timers;
-using System.Drawing;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
+using MahApps.Metro.Controls;
+using System.Windows.Markup;
+using System.IO;
+using System.Xml;
+using System.Windows.Media;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Threading;
+using System.Windows.Input;
 
 namespace L45SpecialCharWinEnhance
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
-        KeysBindHandler bindHandler;
+        private const int bMargin = 5;
+        private const int bSize = 40;
 
-        private static System.Timers.Timer aTimer;
+        string templateBtn;
+        List<Button> btnList = new List<Button>();
+
+        BindedKeyHoldManager bindedKeyHoldManager;
 
         public MainWindow()
         {
             InitializeComponent();
-            this.SubscribeKeyBindEvents();
+            this.SubscribeEvents();
+
+            templateBtn = XamlWriter.Save(this.button);
+            this.ClearUI();
+            this.Hide();
+            this.Topmost = true;
+            this.Activated += OnShow;
         }
 
-        private void SubscribeKeyBindEvents()
+        public void SubscribeEvents()
         {
-            if(bindHandler == null) {
-                this.bindHandler = new KeysBindHandler();
-            }
-
-            this.bindHandler.KeyUpEvent += OnKeyUp;
-            this.bindHandler.KeyHoldEvent += OnKeyHold;
-        }
-
-        private void UnsubscribeKeyBindEvents()
-        {
-            if (this.bindHandler == null)
+            if (this.bindedKeyHoldManager != null)
             {
                 return;
             }
 
-            this.bindHandler.KeyUpEvent -= OnKeyUp;
-            this.bindHandler.KeyHoldEvent -= OnKeyHold;
+            this.bindedKeyHoldManager = new BindedKeyHoldManager();
+            this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
 
-            this.bindHandler.Dispose();
-            this.bindHandler = null;
+            this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
         }
 
-        private void OnKeyHold(object sender, KeyBindEventArgs e)
+        public void UnsubscribeEvents()
         {
-            Log(String.Format("Key Hold event on {0} ({1}) after {2}ms \t values: {3}", e.KeyHoldEvent.KeyInfo.Key, e.KeyHoldEvent.KeyInfo.KeyCode, e.KeyHoldEvent.TimeHoldedKey, String.Join(", ", e.Values)));
+            if (this.bindedKeyHoldManager == null)
+            {
+                return;
+            }
+
+            this.bindedKeyHoldManager.BindedKeyHoldEvent -= OnBindedKeyHoldEvent;
+            this.bindedKeyHoldManager.Dispose();
+            this.bindedKeyHoldManager = null;
+        }
+
+        public void OnBindedKeyHoldEvent(object caller, KeyBindEventArgs e)
+        {
             System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
-            Log(String.Format("Caret position: {0} {1}", caretPosition.X, caretPosition.Y));
-            e.Handled = true;
+            Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
+            this.CreateNewButtons(e.Binding.Value);
+            this.Show();
+            this.btnList[0].Focus();
         }
 
-        private void OnKeyUp(object sender, KeyHoldEventArgs e)
+        public Button CreateButton(string content)
         {
-            Log(String.Format("Send key {0} ({1}) after {2}ms", e.KeyInfo.Key, e.KeyInfo.KeyCode, e.TimeHoldedKey));
-            SendKeysInner(e.KeyInfo.Key);
+            StringReader stringReader = new StringReader(templateBtn);
+            XmlReader xmlReaderTplBtn = XmlReader.Create(stringReader);
+            Button btn = (Button)XamlReader.Load(xmlReaderTplBtn);
+            btn.Height = bSize;
+            btn.Width = bSize;
+            btn.HorizontalAlignment = HorizontalAlignment.Left;
+            btn.VerticalAlignment = VerticalAlignment.Top;
+            btn.Content = content;
+
+            btn.GotFocus += OnBtnFocus;
+            btn.LostFocus += OnLostBtnFocus;
+
+            return btn;
         }
 
-        private void Log(string text)
+        public void ClearUI()
         {
-            logger.AppendText(text + "\n");
-            logger.ScrollToEnd();
-            Debug.WriteLine(text);
+            this.btnList.Clear();
+            this.grid.Children.Clear();
+            this.grid.ColumnDefinitions.Clear();
+            this.grid.RowDefinitions.Clear();
+        }
+
+        public void CreateNewButtons(string[] texts)
+        {
+            this.ClearUI();
+            int i = 0;
+
+            RowDefinition row = new RowDefinition();
+            row.Height = new GridLength(bSize + bMargin);
+            this.grid.RowDefinitions.Add(row);
+
+            foreach (string text in texts)
+            {
+                ColumnDefinition cd = new ColumnDefinition();
+                cd.Width = new GridLength(bSize + bMargin);
+                this.grid.ColumnDefinitions.Add(cd);
+
+                Button btn = this.CreateButton(text);
+                this.grid.Children.Add(btn);
+
+                Grid.SetColumn(btn, i);
+                Grid.SetRow(btn, 0);
+
+                this.btnList.Add(btn);
+                i++;
+            }
+        }
+
+        public void OnBtnFocus(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)e.Source;
+            btn.BorderBrush = System.Windows.Media.Brushes.Black;
+        }
+
+        public void OnLostBtnFocus(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)e.Source;
+            btn.BorderBrush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#D5D5D5"));
+        }
+
+        public void OnShow(object sender, EventArgs e)
+        {
+            Debug.WriteLine("ON SHOW");
+            if (this.btnList.Count > 0)
+            {
+                //Keyboard.Focus(this.btnList[0]);
+                Task.Delay(500).ContinueWith(x =>
+                {
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        this.Focus();
+                        MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                    });
+                });
+            }
+        }
+
+        public void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
 
         public void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            this.UnsubscribeKeyBindEvents();
-        }
-
-        public void SendKeysInner(string key)
-        {
-            try
-            {
-                Debug.WriteLine("Sending key: {0}", (object)key);
-                SendKeys.SendWait(key);
-            }
-            catch (Exception e) { }
+            this.UnsubscribeEvents();
         }
     }
+
 }

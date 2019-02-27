@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace L45SpecialCharWinEnhance.L45KeyHoldHook
+namespace L45.KeyHoldHook
 {
     public class KeyInfo
     {
