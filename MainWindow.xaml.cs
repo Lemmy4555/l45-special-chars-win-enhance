@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using System.Windows.Input;
+using L45.KeyHoldHook;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace L45SpecialCharWinEnhance
 {
@@ -24,9 +27,10 @@ namespace L45SpecialCharWinEnhance
         private const int bSize = 40;
 
         string templateBtn;
-        List<Button> btnList = new List<Button>();
+        List<System.Windows.Controls.Button> btnList = new List<System.Windows.Controls.Button>();
 
         BindedKeyHoldManager bindedKeyHoldManager;
+        L45KeyHoldHook keyHoldHook;
 
         public MainWindow()
         {
@@ -35,9 +39,11 @@ namespace L45SpecialCharWinEnhance
 
             templateBtn = XamlWriter.Save(this.button);
             this.ClearUI();
-            this.Hide();
+            this.Visibility = Visibility.Hidden;
+
             this.Topmost = true;
             this.Activated += OnShow;
+            this.Deactivated += OnLostFocus;
         }
 
         public void SubscribeEvents()
@@ -51,6 +57,14 @@ namespace L45SpecialCharWinEnhance
             this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
 
             this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
+
+            if (this.keyHoldHook != null)
+            {
+                return;
+            }
+
+            this.keyHoldHook = new L45KeyHoldHook();
+            this.keyHoldHook.KeyDownEvent += OnKeyDown;
         }
 
         public void UnsubscribeEvents()
@@ -63,6 +77,22 @@ namespace L45SpecialCharWinEnhance
             this.bindedKeyHoldManager.BindedKeyHoldEvent -= OnBindedKeyHoldEvent;
             this.bindedKeyHoldManager.Dispose();
             this.bindedKeyHoldManager = null;
+
+            if (this.keyHoldHook == null)
+            {
+                return;
+            }
+
+            this.keyHoldHook.KeyDownEvent -= OnKeyDown;
+            this.keyHoldHook = null;
+        }
+
+        public void OnKeyDown(object caller, KeyHoldEventArgs e)
+        {
+            if (e.KeyEventArgs.KeyCode == System.Windows.Forms.Keys.Escape)
+            {
+                this.Visibility = Visibility.Hidden;
+            }
         }
 
         public void OnBindedKeyHoldEvent(object caller, KeyBindEventArgs e)
@@ -70,15 +100,19 @@ namespace L45SpecialCharWinEnhance
             System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
             Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
             this.CreateNewButtons(e.Binding.Value);
-            this.Show();
-            this.btnList[0].Focus();
+            this.Visibility = Visibility.Visible;
+
+            this.forceSetForegroundWindow();
+            Debug.WriteLine("FOCUS: {0}", this.IsFocused);
+
+            //this.btnList[0].Focus();
         }
 
-        public Button CreateButton(string content)
+        public System.Windows.Controls.Button CreateButton(string content)
         {
             StringReader stringReader = new StringReader(templateBtn);
             XmlReader xmlReaderTplBtn = XmlReader.Create(stringReader);
-            Button btn = (Button)XamlReader.Load(xmlReaderTplBtn);
+            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)XamlReader.Load(xmlReaderTplBtn);
             btn.Height = bSize;
             btn.Width = bSize;
             btn.HorizontalAlignment = HorizontalAlignment.Left;
@@ -86,7 +120,6 @@ namespace L45SpecialCharWinEnhance
             btn.Content = content;
 
             btn.GotFocus += OnBtnFocus;
-            btn.LostFocus += OnLostBtnFocus;
 
             return btn;
         }
@@ -120,38 +153,41 @@ namespace L45SpecialCharWinEnhance
                 Grid.SetColumn(btn, i);
                 Grid.SetRow(btn, 0);
 
+                btn.Click += OnBtnClick;
+
                 this.btnList.Add(btn);
                 i++;
             }
         }
 
-        public void OnBtnFocus(object sender, RoutedEventArgs e)
+        public void OnBtnClick(object sender, RoutedEventArgs e)
         {
-            Button btn = (Button)e.Source;
-            btn.BorderBrush = System.Windows.Media.Brushes.Black;
+            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)e.Source;
+            string text = (string)btn.Content;
+
+            this.Visibility = Visibility.Hidden;
+            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
+            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
+            System.Windows.Forms.SendKeys.SendWait(text);
         }
 
-        public void OnLostBtnFocus(object sender, RoutedEventArgs e)
+        public void OnBtnFocus(object sender, RoutedEventArgs e)
         {
-            Button btn = (Button)e.Source;
-            btn.BorderBrush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#D5D5D5"));
+            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)e.Source;
+            //btn.BorderBrush = System.Windows.Media.Brushes.Black;
+        }
+
+        public void OnLostFocus(object sender, EventArgs e)
+        {
+            this.Visibility = Visibility.Hidden;
         }
 
         public void OnShow(object sender, EventArgs e)
         {
-            Debug.WriteLine("ON SHOW");
             if (this.btnList.Count > 0)
             {
-                //Keyboard.Focus(this.btnList[0]);
-                Task.Delay(500).ContinueWith(x =>
-                {
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        this.Focus();
-                        MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                    });
-                });
+                //this.Focus();
+                MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
         }
 
@@ -163,6 +199,44 @@ namespace L45SpecialCharWinEnhance
         public void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             this.UnsubscribeEvents();
+        }
+
+
+        /*- Retrieves Id of the thread that created the specified window -*/
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern uint GetWindowThreadProcessId(int hWnd, out uint lpdwProcessId);
+
+        /*- Retrieves Handle to the ForeGroundWindow -*/
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+
+        [DllImport("user32.dll")]
+        static extern IntPtr AttachThreadInput(IntPtr idAttach,
+                         IntPtr idAttachTo, bool fAttach);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        public void forceSetForegroundWindow()
+        {
+            Process currentProcess = Process.GetCurrentProcess();
+            int pidc = currentProcess.Id;
+
+            var wih = new WindowInteropHelper(this);
+            IntPtr hWnd = wih.Handle;
+
+            uint pid;
+            uint foregroundThreadID = GetWindowThreadProcessId((int)GetForegroundWindow(), out pid);
+            if (foregroundThreadID != pidc)
+            {
+                AttachThreadInput((IntPtr)pidc, (IntPtr)foregroundThreadID, true);
+                SetForegroundWindow(hWnd);
+                AttachThreadInput((IntPtr)pidc, (IntPtr)foregroundThreadID, false);
+            }
+            else
+                SetForegroundWindow(hWnd);
         }
     }
 

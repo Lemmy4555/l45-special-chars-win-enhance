@@ -8,11 +8,37 @@
         Title="MainWindow" Height="302.677" Width="800"
         Closing="MainWindow_Closing" MinHeight="80" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
 
+
+    <Controls:MetroWindow.Resources>
+        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource MetroFlatButton}">
+            <Setter Property="Background" Value="#D5D5D5" />
+            <Setter Property="Foreground" Value="#474747" />
+            <Setter Property="BorderBrush" Value="#D5D5D5" />
+            <Setter Property="BorderThickness" Value="2,2,2,2" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="BorderBrush" Value="#A0A0A0" />
+                    <Setter Property="Background" Value="#D5D5D5" />
+                </Trigger>
+                <Trigger Property="IsFocused" Value="true">
+                    <Setter Property="BorderBrush" Value="#474747" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="BorderBrush" Value="#8C8C8C" />
+                    <Setter Property="Background" Value="#8C8C8C" />
+                    <Setter Property="Foreground" Value="#474747" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Controls:MetroWindow.Resources>
+
     <Grid x:Name="grid" Margin="5,5,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" FontSize="20" FocusVisualStyle="{x:Null}" Content="X" BorderBrush="#D5D5D5" BorderThickness="2,2,2,2">
+        <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" FontSize="20" FocusVisualStyle="{x:Null}" Content="X">
         </Button>
     </Grid>
+
+
 </Controls:MetroWindow>

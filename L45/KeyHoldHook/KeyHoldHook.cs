@@ -80,6 +80,7 @@ namespace L45.KeyHoldHook
         {
             if (this.Paused)
             {
+                Debug.WriteLine("KeyHoldHook PAUSED {0}", e.KeyCode);
                 return;
             }
 
@@ -101,6 +102,7 @@ namespace L45.KeyHoldHook
 
                 if (e.Handled)
                 {
+                    Debug.WriteLine("KeyHoldHook HANDLED {0}", e.KeyCode);
                     newHandler.Handled = true;
                 }
             }
@@ -108,6 +110,8 @@ namespace L45.KeyHoldHook
 
         private void OnKeyUp(object sender, KeyHoldEventArgs e)
         {
+
+            Debug.WriteLine("KeyHoldHook KEYUP {0}", e.KeyEventArgs.KeyCode);
             if (this.Paused)
             {
                 return;
