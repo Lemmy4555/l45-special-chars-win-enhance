@@ -58,7 +58,6 @@ namespace L45.KeyHoldHook
             {
                 if (this.Paused)
                 {
-                    Debug.WriteLine("PAUSED {0}", e.KeyCode);
                     return;
                 }
 
@@ -70,7 +69,6 @@ namespace L45.KeyHoldHook
                         this.KeyHoldEvent?.Invoke(this, this.CreateKeyHoldEventArgs((KeyEventArgsExt)e, this.keyInfo));
                     }
 
-                    Debug.WriteLine("HANDLED {0}", e.KeyCode);
                     e.Handled = this.Handled;
                 }
             }

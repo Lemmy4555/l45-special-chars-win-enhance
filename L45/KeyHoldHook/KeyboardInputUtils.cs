@@ -36,7 +36,7 @@ namespace L45.KeyHoldHook
             return buf.ToString();
         }
 
-        public static Boolean isAlphaNumeric(string strToCheck)
+        public static Boolean IsAlphaNumeric(string strToCheck)
         {
             if (String.IsNullOrEmpty(strToCheck))
             {
@@ -44,6 +44,17 @@ namespace L45.KeyHoldHook
             }
 
             Regex rg = new Regex(@"^[a-zA-Z0-9\s,]*$");
+            return rg.IsMatch(strToCheck);
+        }
+
+        internal static bool IsWordChar(string strToCheck)
+        {
+            if (String.IsNullOrEmpty(strToCheck))
+            {
+                return false;
+            }
+
+            Regex rg = new Regex(@"^[\w,\.\-]*$");
             return rg.IsMatch(strToCheck);
         }
     }

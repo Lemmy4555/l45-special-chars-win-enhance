@@ -91,8 +91,6 @@ namespace L45.CaretPosition
                 }
             }
 
-            Debug.WriteLine("{0}: {1} {2}", text, caretPosition.X.ToString(), caretPosition.Y.ToString());
-
             return caretPosition;
         }
 

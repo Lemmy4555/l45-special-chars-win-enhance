@@ -11,12 +11,14 @@ namespace L45.KeyHoldHook
         public string KeyCode { get; }
         public string Key { get; }
         public bool IsAlphaNumeric { get; }
+        public bool IsWordChar { get; internal set; }
         public bool IsCapsLocked { get; }
 
-        public KeyInfo(string keyCode, string key, bool isAlphaNumeric, bool isCapsLocked) {
+        public KeyInfo(string keyCode, string key, bool isAlphaNumeric, bool isWordChar, bool isCapsLocked) {
             KeyCode = keyCode;
             Key = key;
             IsAlphaNumeric = isAlphaNumeric;
+            IsWordChar = isWordChar;
             IsCapsLocked = isCapsLocked;
         }
     }

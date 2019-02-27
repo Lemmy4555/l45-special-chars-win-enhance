@@ -72,6 +72,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="WindowUIHelper.cs" />
+    <Compile Include="WindowWin32Helper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -80,6 +82,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WindowControls.cs" />
     <Compile Include="Implementation\BindedKeyHoldManager.cs" />
     <Compile Include="L45\CaretPosition\GlobalCaretPosition.cs" />
     <Compile Include="KeyBind\KeyBindConfig.cs" />

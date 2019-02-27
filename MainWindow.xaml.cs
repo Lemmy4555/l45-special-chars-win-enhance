@@ -23,220 +23,81 @@ namespace L45SpecialCharWinEnhance
 {
     public partial class MainWindow : MetroWindow
     {
-        private const int bMargin = 5;
-        private const int bSize = 40;
-
-        string templateBtn;
-        List<System.Windows.Controls.Button> btnList = new List<System.Windows.Controls.Button>();
 
         BindedKeyHoldManager bindedKeyHoldManager;
-        L45KeyHoldHook keyHoldHook;
+
+        private WindowControls windowControls;
+        private WindowWin32Helper windowWin32Helper;
+        private WindowUIHelper windowUIHelper;
 
         public MainWindow()
         {
-            InitializeComponent();
+            this.Init();
+
+            this.windowUIHelper.HideWindow();
+            this.windowUIHelper.ClearUI();
+        }
+
+        private void Init()
+        {
+            this.InitializeComponent();
+
+            this.windowWin32Helper = new WindowWin32Helper(this);
+            this.windowUIHelper = new WindowUIHelper(this);
+
             this.SubscribeEvents();
-
-            templateBtn = XamlWriter.Save(this.button);
-            this.ClearUI();
-            this.Visibility = Visibility.Hidden;
-
-            this.Topmost = true;
-            this.Activated += OnShow;
-            this.Deactivated += OnLostFocus;
         }
 
         public void SubscribeEvents()
         {
-            if (this.bindedKeyHoldManager != null)
+            if (this.bindedKeyHoldManager == null)
             {
-                return;
+                this.bindedKeyHoldManager = new BindedKeyHoldManager();
+                this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
             }
 
-            this.bindedKeyHoldManager = new BindedKeyHoldManager();
-            this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
-
-            this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
-
-            if (this.keyHoldHook != null)
+            if (this.windowControls == null)
             {
-                return;
+                this.windowControls = new WindowControls();
+                this.windowControls.WindowHideEvent += this.HideWindow;
             }
-
-            this.keyHoldHook = new L45KeyHoldHook();
-            this.keyHoldHook.KeyDownEvent += OnKeyDown;
         }
 
         public void UnsubscribeEvents()
         {
-            if (this.bindedKeyHoldManager == null)
+            if (this.bindedKeyHoldManager != null)
             {
-                return;
+                this.bindedKeyHoldManager.BindedKeyHoldEvent -= OnBindedKeyHoldEvent;
+                this.bindedKeyHoldManager.Dispose();
+                this.bindedKeyHoldManager = null;
             }
 
-            this.bindedKeyHoldManager.BindedKeyHoldEvent -= OnBindedKeyHoldEvent;
-            this.bindedKeyHoldManager.Dispose();
-            this.bindedKeyHoldManager = null;
-
-            if (this.keyHoldHook == null)
+            if (this.windowControls != null)
             {
-                return;
+                this.windowControls.WindowHideEvent -= this.HideWindow;
+                this.windowControls.Dispose();
+                this.windowControls = null;
             }
-
-            this.keyHoldHook.KeyDownEvent -= OnKeyDown;
-            this.keyHoldHook = null;
         }
 
-        public void OnKeyDown(object caller, KeyHoldEventArgs e)
+        public void HideWindow(object caller, EventArgs e)
         {
-            if (e.KeyEventArgs.KeyCode == System.Windows.Forms.Keys.Escape)
-            {
-                this.Visibility = Visibility.Hidden;
-            }
+            this.windowUIHelper.HideWindow();
         }
 
         public void OnBindedKeyHoldEvent(object caller, KeyBindEventArgs e)
         {
             System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
             Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
-            this.CreateNewButtons(e.Binding.Value);
-            this.Visibility = Visibility.Visible;
 
-            this.forceSetForegroundWindow();
-            Debug.WriteLine("FOCUS: {0}", this.IsFocused);
-
-            //this.btnList[0].Focus();
-        }
-
-        public System.Windows.Controls.Button CreateButton(string content)
-        {
-            StringReader stringReader = new StringReader(templateBtn);
-            XmlReader xmlReaderTplBtn = XmlReader.Create(stringReader);
-            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)XamlReader.Load(xmlReaderTplBtn);
-            btn.Height = bSize;
-            btn.Width = bSize;
-            btn.HorizontalAlignment = HorizontalAlignment.Left;
-            btn.VerticalAlignment = VerticalAlignment.Top;
-            btn.Content = content;
-
-            btn.GotFocus += OnBtnFocus;
-
-            return btn;
-        }
-
-        public void ClearUI()
-        {
-            this.btnList.Clear();
-            this.grid.Children.Clear();
-            this.grid.ColumnDefinitions.Clear();
-            this.grid.RowDefinitions.Clear();
-        }
-
-        public void CreateNewButtons(string[] texts)
-        {
-            this.ClearUI();
-            int i = 0;
-
-            RowDefinition row = new RowDefinition();
-            row.Height = new GridLength(bSize + bMargin);
-            this.grid.RowDefinitions.Add(row);
-
-            foreach (string text in texts)
-            {
-                ColumnDefinition cd = new ColumnDefinition();
-                cd.Width = new GridLength(bSize + bMargin);
-                this.grid.ColumnDefinitions.Add(cd);
-
-                Button btn = this.CreateButton(text);
-                this.grid.Children.Add(btn);
-
-                Grid.SetColumn(btn, i);
-                Grid.SetRow(btn, 0);
-
-                btn.Click += OnBtnClick;
-
-                this.btnList.Add(btn);
-                i++;
-            }
-        }
-
-        public void OnBtnClick(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)e.Source;
-            string text = (string)btn.Content;
-
-            this.Visibility = Visibility.Hidden;
-            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
-            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
-            System.Windows.Forms.SendKeys.SendWait(text);
-        }
-
-        public void OnBtnFocus(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Controls.Button btn = (System.Windows.Controls.Button)e.Source;
-            //btn.BorderBrush = System.Windows.Media.Brushes.Black;
-        }
-
-        public void OnLostFocus(object sender, EventArgs e)
-        {
-            this.Visibility = Visibility.Hidden;
-        }
-
-        public void OnShow(object sender, EventArgs e)
-        {
-            if (this.btnList.Count > 0)
-            {
-                //this.Focus();
-                MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-            }
-        }
-
-        public void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-
+            this.windowUIHelper.CreateNewButtons(e.Binding.Value);
+            this.windowUIHelper.ShowWindow();
+            //this.windowWin32Helper.forceSetForegroundWindow();
         }
 
         public void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             this.UnsubscribeEvents();
-        }
-
-
-        /*- Retrieves Id of the thread that created the specified window -*/
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern uint GetWindowThreadProcessId(int hWnd, out uint lpdwProcessId);
-
-        /*- Retrieves Handle to the ForeGroundWindow -*/
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
-
-
-        [DllImport("user32.dll")]
-        static extern IntPtr AttachThreadInput(IntPtr idAttach,
-                         IntPtr idAttachTo, bool fAttach);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        public void forceSetForegroundWindow()
-        {
-            Process currentProcess = Process.GetCurrentProcess();
-            int pidc = currentProcess.Id;
-
-            var wih = new WindowInteropHelper(this);
-            IntPtr hWnd = wih.Handle;
-
-            uint pid;
-            uint foregroundThreadID = GetWindowThreadProcessId((int)GetForegroundWindow(), out pid);
-            if (foregroundThreadID != pidc)
-            {
-                AttachThreadInput((IntPtr)pidc, (IntPtr)foregroundThreadID, true);
-                SetForegroundWindow(hWnd);
-                AttachThreadInput((IntPtr)pidc, (IntPtr)foregroundThreadID, false);
-            }
-            else
-                SetForegroundWindow(hWnd);
         }
     }
 
