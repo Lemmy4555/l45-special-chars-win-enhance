@@ -18,7 +18,7 @@ namespace L45.KeyHoldHook
             public event EventHandler<KeyHoldEventArgs> KeyUpEvent;
             public event EventHandler<KeyHoldEventArgs> KeyHoldEvent;
             public bool Handled { get; set; } = false;
-            public bool Paused { get; set; }
+            public bool IsPaused { get; private set; }
 
             private long handlerStart;
             private readonly KeyInfo keyInfo;
@@ -56,7 +56,7 @@ namespace L45.KeyHoldHook
 
             private void OnKeyDown(object sender, KeyEventArgs e)
             {
-                if (this.Paused)
+                if (this.IsPaused)
                 {
                     return;
                 }
@@ -75,7 +75,7 @@ namespace L45.KeyHoldHook
 
             private void OnKeyUp(object sender, KeyEventArgs e)
             {
-                if (this.Paused)
+                if (this.IsPaused)
                 {
                     return;
                 }
@@ -95,6 +95,16 @@ namespace L45.KeyHoldHook
                 long handlerStop = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
                 int timeKeyHolded = (int)(handlerStop - this.handlerStart);
                 return new KeyHoldEventArgs(keyInfo, e, timeKeyHolded, this.hasKeyBeenHolded);
+            }
+
+            public void Pause()
+            {
+                this.IsPaused = true;
+            }
+
+            public void Resume()
+            {
+                this.IsPaused = false;
             }
 
             public void Dispose()

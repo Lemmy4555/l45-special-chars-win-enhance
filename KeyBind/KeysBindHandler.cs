@@ -16,24 +16,27 @@ namespace L45.SpecialCharWinEnhance.KeyBind
         public event EventHandler<KeyBindEventArgs> KeyDownEvent;
 
         private L45KeyHoldHook keyHoldHook;
-        private List<string> keysAwaytingToBeSuppressed;
-        private List<string> keysAwaytingToBeHolded;
+        private List<string> keysAwaytingToBeSuppressed = new List<string>();
+        private List<string> keysAwaytingToBeHolded = new List<string>();
 
         public KeyBindHandler()
         {
             this.Subscribe();
-            this.keysAwaytingToBeSuppressed = new List<string>();
-            this.keysAwaytingToBeHolded = new List<string>();
+        }
+
+        public KeyBindHandler(L45KeyHoldHook keyHoldHook)
+        {
+            this.keyHoldHook = keyHoldHook;
+            this.Subscribe();
         }
 
         private void Subscribe()
         {
-            if (this.keyHoldHook != null)
+            if (this.keyHoldHook == null)
             {
-                return;
+                this.keyHoldHook = new L45KeyHoldHook();
             }
 
-            this.keyHoldHook = new L45KeyHoldHook();
             this.keyHoldHook.KeyDownEvent += OnKeyDown;
             this.keyHoldHook.KeyUpEvent += OnKeyUp;
             this.keyHoldHook.KeyHoldEvent += OnKeyHold;
@@ -101,12 +104,12 @@ namespace L45.SpecialCharWinEnhance.KeyBind
 
         private void onHookPauseRequest()
         {
-            this.keyHoldHook.Paused = true;
+            this.keyHoldHook.Pause();
         }
 
         private void onHookResumeRequest()
         {
-            this.keyHoldHook.Paused = false;
+            this.keyHoldHook.Resume();
         }
 
         public void Dispose()

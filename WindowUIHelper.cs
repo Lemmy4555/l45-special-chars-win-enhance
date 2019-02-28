@@ -9,13 +9,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Xml;
+using L45.KeyHoldHook;
 
 namespace L45SpecialCharWinEnhance
 {
     class WindowUIHelper
     {
-        private const int bMargin = 5;
-        private const int bSize = 40;
+        private const int bMargin = 7;
+        private const int bSize = 45;
 
         private MainWindow window;
 
@@ -42,12 +43,19 @@ namespace L45SpecialCharWinEnhance
 
         public void HideWindow()
         {
-            this.window.Visibility = Visibility.Hidden;
+            this.window.Hide();
         }
 
-        public void ShowWindow()
+        public void ShowWindow(System.Drawing.Point position)
         {
-            this.window.Visibility = Visibility.Visible;
+            if (position == null)
+            {
+                position = new System.Drawing.Point(25, 25);
+            }
+
+            this.window.Show();
+            this.window.Top = position.Y - this.window.Height - 30;
+            this.window.Left = position.X - (this.window.Width / 2);
             this.setWindowInForeground();
         }
 
@@ -99,9 +107,8 @@ namespace L45SpecialCharWinEnhance
             string text = (string)btn.Content;
 
             this.HideWindow();
-            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
-            System.Windows.Forms.SendKeys.SendWait("{BACKSPACE}");
-            System.Windows.Forms.SendKeys.SendWait(text);
+            this.window.SendKey("{BACKSPACE}");
+            this.window.SendKey(text);
         }
 
         public void OnShow(object sender, EventArgs e)

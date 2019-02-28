@@ -5,26 +5,15 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using MahApps.Metro.Controls;
-using System.Windows.Markup;
-using System.IO;
-using System.Xml;
-using System.Windows.Media;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows.Threading;
-using System.Windows.Input;
 using L45.KeyHoldHook;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 
 namespace L45SpecialCharWinEnhance
 {
-    public partial class MainWindow : MetroWindow
+    public partial class MainWindow : Window
     {
 
-        BindedKeyHoldManager bindedKeyHoldManager;
+        private BindedKeyHoldManager bindedKeyHoldManager;
+        private L45KeyHoldHook keyHoldHook;
 
         private WindowControls windowControls;
         private WindowWin32Helper windowWin32Helper;
@@ -48,22 +37,27 @@ namespace L45SpecialCharWinEnhance
             this.SubscribeEvents();
         }
 
-        public void SubscribeEvents()
+        private void SubscribeEvents()
         {
+            if (this.keyHoldHook == null)
+            {
+                this.keyHoldHook = new L45KeyHoldHook();
+            }
+
             if (this.bindedKeyHoldManager == null)
             {
-                this.bindedKeyHoldManager = new BindedKeyHoldManager();
-                this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
+                this.bindedKeyHoldManager = new BindedKeyHoldManager(this.keyHoldHook);
             }
+            this.bindedKeyHoldManager.BindedKeyHoldEvent += OnBindedKeyHoldEvent;
 
             if (this.windowControls == null)
             {
-                this.windowControls = new WindowControls();
-                this.windowControls.WindowHideEvent += this.HideWindow;
+                this.windowControls = new WindowControls(this, this.keyHoldHook);
             }
+            this.windowControls.WindowHideEvent += this.HideWindow;
         }
 
-        public void UnsubscribeEvents()
+        private void UnsubscribeEvents()
         {
             if (this.bindedKeyHoldManager != null)
             {
@@ -91,8 +85,18 @@ namespace L45SpecialCharWinEnhance
             Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
 
             this.windowUIHelper.CreateNewButtons(e.Binding.Value);
-            this.windowUIHelper.ShowWindow();
-            //this.windowWin32Helper.forceSetForegroundWindow();
+            this.windowUIHelper.ShowWindow(caretPosition);
+            if (!this.IsActive)
+            {
+                this.windowWin32Helper.forceSetForegroundWindow();
+            }
+        }
+
+        internal void SendKey(string text)
+        {
+            this.keyHoldHook.Pause();
+            UnbreakableSendKey.Send(text);
+            this.keyHoldHook.Resume();
         }
 
         public void MainWindow_Closing(object sender, CancelEventArgs e)

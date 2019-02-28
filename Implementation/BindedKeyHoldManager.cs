@@ -21,44 +21,44 @@ namespace L45.SpecialCharWinEnhance.Implementation
             this.SubscribeKeyBindEvents();
         }
 
+        public BindedKeyHoldManager(L45KeyHoldHook keyHoldHook)
+        {
+            this.keyHoldHook = keyHoldHook;
+            this.SubscribeKeyBindEvents();
+        }
+
         private void SubscribeKeyBindEvents()
         {
-            if (keyHoldHook != null)
+            if (keyHoldHook == null)
             {
-                return;
+                this.keyHoldHook = new L45KeyHoldHook();
             }
 
-            this.keyHoldHook = new L45KeyHoldHook();
             this.keyHoldHook.KeyHoldEvent += OnKeyHold;
 
-            if (bindHandler != null)
+            if (bindHandler == null)
             {
-                return;
+                this.bindHandler = new KeyBindHandler(this.keyHoldHook);
             }
 
-            this.bindHandler = new KeyBindHandler();
             this.bindHandler.KeyHoldEvent += OnBindedKeyHold;
         }
 
         private void UnsubscribeKeyBindEvents()
         {
-            if (this.bindHandler == null)
+            if (this.bindHandler != null)
             {
-                return;
+                this.bindHandler.KeyHoldEvent -= OnBindedKeyHold;
+                this.bindHandler.Dispose();
+                this.bindHandler = null;
             }
 
-            this.bindHandler.KeyHoldEvent -= OnBindedKeyHold;
-            this.bindHandler.Dispose();
-            this.bindHandler = null;
-
-            if (this.keyHoldHook == null)
+            if (this.keyHoldHook != null)
             {
-                return;
+                this.keyHoldHook.KeyHoldEvent -= OnKeyHold;
+                this.keyHoldHook.Dispose();
+                this.keyHoldHook = null;
             }
-
-            this.keyHoldHook.KeyHoldEvent -= OnKeyHold;
-            this.keyHoldHook.Dispose();
-            this.keyHoldHook = null;
         }
 
         private void OnBindedKeyHold(object sender, KeyBindEventArgs e)

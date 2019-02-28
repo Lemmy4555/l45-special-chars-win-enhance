@@ -14,7 +14,7 @@ namespace L45.KeyHoldHook
     {
         private IKeyboardMouseEvents eventsHook;
         private Dictionary<string, KeyHoldHandler> activeHandlers;
-        private bool paused = false;
+        public bool IsPaused { get; private set; }
 
         public event EventHandler<KeyHoldEventArgs> KeyUpEvent;
         public event EventHandler<KeyHoldEventArgs> KeyDownEvent;
@@ -27,23 +27,6 @@ namespace L45.KeyHoldHook
         {
             this.activeHandlers = new Dictionary<string, KeyHoldHandler>();
             this.SubscribeEvents();
-        }
-
-        public bool Paused
-        {
-            get
-            {
-                return this.paused;
-            }
-            set
-            {
-                this.paused = value;
-
-                foreach (KeyValuePair<string, KeyHoldHandler> entry in this.activeHandlers)
-                {
-                    entry.Value.Paused = value;
-                }
-            }
         }
 
         private void SubscribeEvents()
@@ -78,7 +61,7 @@ namespace L45.KeyHoldHook
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (this.Paused)
+            if (this.IsPaused)
             {
                 return;
             }
@@ -107,7 +90,7 @@ namespace L45.KeyHoldHook
         private void OnKeyUp(object sender, KeyHoldEventArgs e)
         {
 
-            if (this.Paused)
+            if (this.IsPaused)
             {
                 return;
             }
@@ -119,7 +102,7 @@ namespace L45.KeyHoldHook
 
         private void OnKeyHold(object sender, KeyHoldEventArgs e)
         {
-            if (this.Paused)
+            if (this.IsPaused)
             {
                 return;
             }
@@ -161,12 +144,20 @@ namespace L45.KeyHoldHook
 
         internal void Pause()
         {
-            throw new NotImplementedException();
+            this.IsPaused = true;
+            foreach (KeyValuePair<string, KeyHoldHandler> entry in this.activeHandlers)
+            {
+                entry.Value.Pause();
+            }
         }
 
         internal void Resume()
         {
-            throw new NotImplementedException();
+            this.IsPaused = false;
+            foreach (KeyValuePair<string, KeyHoldHandler> entry in this.activeHandlers)
+            {
+                entry.Value.Resume();
+            }
         }
     }
 }

@@ -12,45 +12,57 @@ namespace L45SpecialCharWinEnhance
 
     public class WindowControls : IDisposable
     {
-        private L45KeyHoldHook keyHoldHook;
         public EventHandler WindowHideEvent;
 
-        public WindowControls()
+        private MainWindow window;
+        private L45KeyHoldHook keyHoldHook;
+
+        public WindowControls(MainWindow window)
         {
+            this.window = window;
             this.SubscribeEvents();
         }
 
-        public void SubscribeEvents()
+        public WindowControls(MainWindow window, L45KeyHoldHook keyHoldHook)
         {
-            if (this.keyHoldHook != null)
+            this.window = window;
+            this.keyHoldHook = keyHoldHook;
+            this.SubscribeEvents();
+        }
+
+        private void SubscribeEvents()
+        {
+            if (this.keyHoldHook == null)
             {
-                return;
+                this.keyHoldHook = new L45KeyHoldHook();
             }
 
-            this.keyHoldHook = new L45KeyHoldHook();
             this.keyHoldHook.KeyDownEvent += OnKeyDown;
         }
 
-        public void UnsubscribeEvents()
+        private void UnsubscribeEvents()
         {
-
-            if (this.keyHoldHook == null)
+            if (this.keyHoldHook != null)
             {
-                return;
+                this.keyHoldHook.KeyDownEvent -= OnKeyDown;
+                this.keyHoldHook = null;
             }
-
-            this.keyHoldHook.KeyDownEvent -= OnKeyDown;
-            this.keyHoldHook = null;
         }
 
         public void OnKeyDown(object caller, KeyHoldEventArgs e)
         {
-            if (e.KeyInfo.IsWordChar)
+            if (this.window.IsActive)
             {
-                this.WindowHideEvent?.Invoke(this, new EventArgs());
-            } else if (e.KeyEventArgs.KeyCode == Keys.Escape)
-            {
-                this.WindowHideEvent?.Invoke(this, new EventArgs());
+                if (e.KeyInfo.IsWordChar || e.KeyEventArgs.KeyCode == Keys.Back)
+                {
+                    this.WindowHideEvent?.Invoke(this, new EventArgs());
+                    this.window.SendKey(e.KeyInfo.Key);
+                    e.Handled = true;
+                }
+                else if (e.KeyEventArgs.KeyCode == Keys.Escape)
+                {
+                    this.WindowHideEvent?.Invoke(this, new EventArgs());
+                }
             }
         }
 
