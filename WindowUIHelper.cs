@@ -46,13 +46,14 @@ namespace L45SpecialCharWinEnhance
             this.window.Hide();
         }
 
+        public void ShowWindow()
+        {
+            System.Drawing.Point position = new System.Drawing.Point(25, 25);
+            this.ShowWindow(position);
+        }
+
         public void ShowWindow(System.Drawing.Point position)
         {
-            if (position == null)
-            {
-                position = new System.Drawing.Point(25, 25);
-            }
-
             this.window.Show();
             this.window.Top = position.Y - this.window.Height - 30;
             this.window.Left = position.X - (this.window.Width / 2);

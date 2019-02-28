@@ -3,9 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                      mc:Ignorable="d"
-        Title="MainWindow" Height="302.677" Width="800"
-        Closing="MainWindow_Closing" MinHeight="40" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStyle="None" MinWidth="40" BorderThickness="1" BorderBrush="#494949" Background="#3f3f3f">
+        mc:Ignorable="d"
+        Title="MainWindow"
+        Closing="MainWindow_Closing" 
+        MinHeight="40" ResizeMode="NoResize" 
+        WindowStyle="None" MinWidth="40" BorderThickness="1" 
+        BorderBrush="#494949" Background="#b03f3f3f"
+        WindowState="Maximized" 
+        AllowsTransparency="True" Height="212.257" Width="551.394">
 
 
     <Window.Resources>
@@ -17,8 +22,8 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Background" Value="#D5D5D5" />
             <Setter Property="Foreground" Value="#474747" />
-            <Setter Property="BorderBrush" Value="#D5D5D5" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#3f3f3f" /> 
+            <Setter Property="BorderThickness" Value="2" />
         </Style>
 
         <ControlTemplate x:Key="L45Button" TargetType="{x:Type ButtonBase}">
@@ -44,7 +49,7 @@
                     <Setter Property="Foreground" Value="#FF838383"/>
                 </Trigger>
                 <Trigger Property="IsFocused" Value="true">
-                    <Setter Property="BorderBrush" Value="#647ee5" />
+                    <Setter Property="BorderBrush" Value="#D5D5D5" />
                     <Setter Property="BorderThickness" Value="2" />
                     <Setter Property="Background" Value="#eaeaea" />
                 </Trigger>
@@ -52,12 +57,14 @@
         </ControlTemplate>
     </Window.Resources>
 
-    <Grid x:Name="grid" Margin="20,20,20,20">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" FontSize="20" FocusVisualStyle="{x:Null}" Content="X" Template="{DynamicResource L45Button}">
-        </Button>
-    </Grid>
+    <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="#3f3f3f">
+        <Grid x:Name="grid" Margin="40,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" FontSize="20" FocusVisualStyle="{x:Null}" Content="X" Template="{DynamicResource L45Button}">
+            </Button>
+        </Grid>
+    </DockPanel>
 
 </Window>

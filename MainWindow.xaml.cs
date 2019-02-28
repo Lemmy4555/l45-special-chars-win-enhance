@@ -81,11 +81,11 @@ namespace L45SpecialCharWinEnhance
 
         public void OnBindedKeyHoldEvent(object caller, KeyBindEventArgs e)
         {
-            System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
-            Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
+            //System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
+            //Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
 
             this.windowUIHelper.CreateNewButtons(e.Binding.Value);
-            this.windowUIHelper.ShowWindow(caretPosition);
+            this.windowUIHelper.ShowWindow();
             if (!this.IsActive)
             {
                 this.windowWin32Helper.forceSetForegroundWindow();
