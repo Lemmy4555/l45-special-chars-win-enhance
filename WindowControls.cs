@@ -62,6 +62,7 @@ namespace L45SpecialCharWinEnhance
                 else if (e.KeyEventArgs.KeyCode == Keys.Escape)
                 {
                     this.WindowHideEvent?.Invoke(this, new EventArgs());
+                    e.Handled = true;
                 }
             }
         }
