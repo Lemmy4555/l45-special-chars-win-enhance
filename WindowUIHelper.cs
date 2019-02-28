@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,11 @@ namespace L45SpecialCharWinEnhance
 
         public void HideWindow()
         {
-            this.window.Hide();
+            //this.window.Hide();
+            this.window.Opacity = 0;
+            Task.Delay(100).ContinueWith((x) => {
+                this.window.Dispatcher.Invoke(() => this.window.Visibility = Visibility.Hidden);
+            });
         }
 
         public void ShowWindow()
@@ -54,10 +59,30 @@ namespace L45SpecialCharWinEnhance
 
         public void ShowWindow(System.Drawing.Point position)
         {
-            this.window.Show();
-            this.window.Top = position.Y - this.window.Height - 30;
-            this.window.Left = position.X - (this.window.Width / 2);
+            this.ShowWindow(position, 60, 40);
+        }
+
+        public void ShowWindow(System.Windows.Forms.Screen screen)
+        {
+            System.Drawing.Point lefttop = new System.Drawing.Point(screen.WorkingArea.Left, screen.WorkingArea.Top);
+            int width = screen.WorkingArea.Width;
+            int height = screen.WorkingArea.Height;
+            this.ShowWindow(lefttop, width, height);
+        }
+
+        public void ShowWindow(System.Drawing.Point position, int width, int height)
+        {
+            //this.window.Show();
+            this.window.Top = position.Y;
+            this.window.Left = position.X;
+            this.window.Width = width;
+            this.window.Height = height;
+            this.window.Visibility = Visibility.Visible;
             this.setWindowInForeground();
+
+            Task.Delay(100).ContinueWith((x) => {
+                this.window.Dispatcher.Invoke(() => this.window.Opacity = 1);
+            });
         }
 
         public Button CreateButton(string content)

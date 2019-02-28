@@ -9,15 +9,16 @@
         MinHeight="40" ResizeMode="NoResize" 
         WindowStyle="None" MinWidth="40" BorderThickness="1" 
         BorderBrush="#494949" Background="#b03f3f3f"
-        WindowState="Maximized" 
-        AllowsTransparency="True" Height="212.257" Width="551.394">
+        AllowsTransparency="True" Height="212.257" Width="551.394"
+        Opacity="0.5"
+>
 
 
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Margin" Value="2"/>
             <Setter Property="FontFamily" Value="Calibri"/>
-            <Setter Property="FontSize" Value="11px"/>
+            <Setter Property="FontSize" Value="15px"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Background" Value="#D5D5D5" />

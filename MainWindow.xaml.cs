@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using L45.KeyHoldHook;
+using System.Windows.Forms;
 
 namespace L45SpecialCharWinEnhance
 {
@@ -84,8 +85,10 @@ namespace L45SpecialCharWinEnhance
             //System.Drawing.Point caretPosition = GlobalCaretPosition.GetCurrentCaretPosition();
             //Debug.WriteLine("Caret position: {0} {1}", caretPosition.X, caretPosition.Y);
 
+            Screen screen = GlobalCaretPosition.GetActiveScreen();
+
             this.windowUIHelper.CreateNewButtons(e.Binding.Value);
-            this.windowUIHelper.ShowWindow();
+            this.windowUIHelper.ShowWindow(screen);
             if (!this.IsActive)
             {
                 this.windowWin32Helper.forceSetForegroundWindow();
